@@ -1,2 +1,3 @@
 # kyma-function-examples
-examples for kyma functions
+
+Repository collecting different function examples to be deployed to a [kyma](kyma-project.io) cluster
