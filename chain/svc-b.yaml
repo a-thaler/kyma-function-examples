@@ -1,0 +1,56 @@
+apiVersion: serverless.kyma-project.io/v1alpha1
+kind: Function
+metadata:
+  name: svc-b
+  labels:
+    app: svc-b
+spec:
+  buildResources:
+    limits:
+      cpu: 1100m
+      memory: 1100Mi
+    requests:
+      cpu: 700m
+      memory: 700Mi
+  labels:
+    app: svc-b
+  deps: |-
+    {  
+      "name": "svc-b",
+      "version": "1.0.0",
+      "dependencies":{
+        "axios": "^0.19.0"
+      }
+    }
+  maxReplicas: 1
+  minReplicas: 1
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  runtime: nodejs12
+  source: |-
+    const axios = require("axios");
+    module.exports = {
+        main: async function (event, context) {
+          var traceHeaders = extractTraceHeaders(event.extensions.request.headers)
+          console.debug(`level=debug, traceId=${traceHeaders.headers['x-b3-traceid']}, message=Event data: ${JSON.stringify(event.data)}`);
+
+          await axios.post("http://svc-c.default:80", event.data, traceHeaders);
+          console.info(`level=info, traceId=${traceHeaders.headers['x-b3-traceid']}, message=Called svc-c`);
+          return
+      }
+    };
+    const traceHeaderNames = ['x-request-id', 'x-b3-traceid', 'x-b3-spanid', 'x-b3-parentspanid', 'x-b3-sampled', 'x-b3-Flags', 'x-ot-span-context']
+    function extractTraceHeaders(headers) {
+        var map = {};
+        for (var i in traceHeaderNames) {
+            if (headers[traceHeaderNames[i]] !== undefined) {
+                map[traceHeaderNames[i]] = headers[traceHeaderNames[i]]
+            }
+        }
+        return { headers: map };
+    }
