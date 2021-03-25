@@ -37,10 +37,10 @@ spec:
     module.exports = {
         main: async function (event, context) {
           var traceHeaders = extractTraceHeaders(event.extensions.request.headers)
-          console.debug(`level=debug, traceId=${traceHeaders.headers['x-b3-traceid']}, message=Event data: ${JSON.stringify(event.data)}`);
+          console.debug(`level=debug traceId=${traceHeaders.headers['x-b3-traceid']} message=Event data: ${JSON.stringify(event.data)}`);
 
           await axios.post("http://svc-c.default:80", event.data, traceHeaders);
-          console.info(`level=info, traceId=${traceHeaders.headers['x-b3-traceid']}, message=Called svc-c`);
+          console.info(`level=info traceId=${traceHeaders.headers['x-b3-traceid']} message=Called svc-c`);
           return
       }
     };
