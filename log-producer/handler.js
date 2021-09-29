@@ -7,8 +7,9 @@ module.exports = {
 
 async function startLogger(headers) {
     var index = 0
+    console.log("Starting log thread for request " + headers["x-request-id"])
     while (true) {
-        console.log("Starting log thread for request " + headers["x-request-id"] + " " + index)
+        console.log("Log number "+ index + " for request " + headers["x-request-id"])
         index++
         await sleep(10);
     }
