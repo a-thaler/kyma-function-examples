@@ -16,7 +16,7 @@ spec:
     - DELETE
     - HEAD
     path: /.*
-  host: demo
+  host: log-producer
   service:
     name: log-producer
     port: 80

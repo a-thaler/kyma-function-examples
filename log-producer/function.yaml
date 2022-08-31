@@ -9,6 +9,9 @@ spec:
     maxReplicas: 1
     minReplicas: 1
   runtime: nodejs14
+  template:
+    labels:
+      app: log-producer
   source:
     inline:
       source: |-

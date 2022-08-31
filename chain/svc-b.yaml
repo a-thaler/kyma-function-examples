@@ -9,6 +9,9 @@ spec:
     maxReplicas: 1
     minReplicas: 1
   runtime: nodejs14
+  template:
+    labels:
+      app: svc-b
   source:
     inline:
       source: |-
@@ -18,9 +21,18 @@ spec:
               let traceId=event.extensions.request.headers['x-b3-traceid']
               console.debug(`level=debug traceId=${traceId} message=Event data: ${JSON.stringify(event.data)}`);
 
-              await axios.post("http://svc-c.default:80", event.data);
+              if(Date.now() % 2 == 0){
+                res = event.extensions.response;
+                res.writeHead(503,{'Content-Type': 'text/plain'});
+                res.write('Bad timing!');
+                res.end();
+                console.error(`level=error traceId=${traceId} message=Bad timing`);
+                return
+              }
+
+              let response = await axios.post("http://svc-c.default:80", event.data);
               console.info(`level=info traceId=${traceId} message=Called svc-c`);
-              return
+              return response.data
           }
         };
       dependencies: |-

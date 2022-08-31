@@ -9,6 +9,9 @@ spec:
     maxReplicas: 1
     minReplicas: 1
   runtime: nodejs14
+  template:
+    labels:
+      app: svc-a
   source:
     inline:
       source: |-
@@ -27,9 +30,9 @@ spec:
                 return
               }
 
-              await axios.post("http://svc-b.default:80", event.data);
+              let response = await axios.post("http://svc-b.default:80", event.data);
               console.info(`level=info traceId=${traceId} message=Called svc-b`);
-              return
+              return response.data
           }
         };
       dependencies: |-
