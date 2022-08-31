@@ -8,7 +8,7 @@ spec:
   scaleConfig:
     maxReplicas: 1
     minReplicas: 1
-  runtime: nodejs14
+  runtime: nodejs16
   template:
     labels:
       app: svc-b
