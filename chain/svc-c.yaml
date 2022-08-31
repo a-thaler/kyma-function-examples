@@ -38,6 +38,6 @@ spec:
           "name": "svc-c",
           "version": "1.0.0",
           "dependencies":{
-            "axios": "^0.19.0"
+            "axios": "^0.21.1"
           }
         }
