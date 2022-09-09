@@ -1,0 +1,24 @@
+apiVersion: v2
+engine: gotpl
+type: application
+name: test-prometheus
+version: 39.11.1
+appVersion: 0.58.0
+kubeVersion: ">=1.16.0-0"
+home: https://github.com/prometheus-operator/kube-prometheus
+keywords:
+  - operator
+  - prometheus
+  - kube-prometheus
+annotations:
+  "artifacthub.io/links": |
+    - name: Chart Source
+      url: https://github.com/prometheus-community/helm-charts
+    - name: Upstream Project
+      url: https://github.com/prometheus-operator/kube-prometheus
+
+dependencies:
+  - name: kube-prometheus-stack
+    version: "39.11.*"
+    repository: https://github.com/prometheus-community/helm-charts
+    condition: kube-prometheus-stack.enabled
