@@ -57,7 +57,7 @@ spec:
             "message": "Incoming request to svc-b"
           }));
           
-          response = await axios.post("http://svc-c.demo:80", event.data, {"Content-Type": "application/cloudevents+json"});
+          response = await axios.post("http://svc-c.example:80", event.data, {"Content-Type": "application/cloudevents+json"});
 
           console.info(JSON.stringify({
             "level": "info",

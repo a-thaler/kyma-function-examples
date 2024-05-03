@@ -44,7 +44,7 @@ spec:
         async function callService(event, span, counter){
           var response;
           try{
-            response = await axios.post("http://svc-b.demo:80", event.data, {"Content-Type": "application/cloudevents+json"});
+            response = await axios.post("http://svc-b.example:80", event.data, {"Content-Type": "application/cloudevents+json"});
 
             console.info(JSON.stringify({
               "level": "info",
