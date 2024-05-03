@@ -16,7 +16,7 @@ spec:
     - DELETE
     - HEAD
     path: /.*
-  host: demo
+  host: svc-a
   service:
     name: svc-a
     port: 80

@@ -3,36 +3,74 @@ kind: Function
 metadata:
   name: svc-c
   labels:
-    app: svc-c
+    demo: metrics
 spec:
   scaleConfig:
     maxReplicas: 1
     minReplicas: 1
-  runtime: nodejs16
-  template:
-    labels:
-      app: svc-c
+  runtime: nodejs20
+  labels:
+    sidecar.istio.io/inject: "true"
   source:
     inline:
       source: |-
         const axios = require("axios");
+        const opentelemetry = require('@opentelemetry/api');
+        const meter = opentelemetry.metrics.getMeter('svc', '0.1.0');
+
+        // Create Metric of type Counter
+        const counter = meter.createCounter('svc.calls.total', { description: 'Counts the number of calls' });
+
         module.exports = {
             main: async function (event, context) {
-              let traceId=event.extensions.request.headers['x-b3-traceid']
-              console.debug(`level=debug traceId=${traceId} message=Event data: ${JSON.stringify(event.data)}`);
+              const span = init(event);
 
-              if(Date.now() % 2 == 0){
-                res = event.extensions.response;
-                res.writeHead(503,{'Content-Type': 'text/plain'});
-                res.write('Bad timing!');
-                res.end();
-                console.error(`level=error traceId=${traceId} message=Bad timing`);
-                return
+              if(timeToFail()){
+                createErrorResponse(event, span);
+
+                // Increase Counter in Error Case
+                counter.add(1, { status: '500' });
+              } else {
+
+                // Increase Counter in Success case
+                counter.add(1, { status: '200' });
               }
-
-              return "success"
+              span.end();
+              return
           }
         };
+
+        function init(event){
+          const span = event.tracer.startSpan('fail randomly');
+          console.debug(JSON.stringify({
+                "level": "debug",
+                "traceId": span.spanContext().traceId,
+                "message": "Incoming request to svc-c"
+              }));
+
+          return span;
+        }
+
+        function createErrorResponse(event, span){
+          res = event.extensions.response;
+          res.writeHead(503,{'Content-Type': 'text/plain'});
+          res.write('Bad timing!');
+          res.end();
+
+          console.error(JSON.stringify({
+            "level": "debug",
+            "traceId": span.spanContext().traceId,
+            "message": "Bad timing in svc-c"
+          }));
+
+          span.recordException(new Error("Bad timing"));
+          span.setStatus({ code: opentelemetry.SpanStatusCode.ERROR });
+          span.end();
+        }
+
+        function timeToFail(){
+          return Date.now() % 2 == 0;
+        }
       dependencies: |-
         {  
           "name": "svc-c",

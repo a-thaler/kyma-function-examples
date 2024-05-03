@@ -8,7 +8,7 @@ spec:
   scaleConfig:
     maxReplicas: 1
     minReplicas: 1
-  runtime: nodejs14
+  runtime: nodejs18
   template:
     labels:
       app: log-producer
@@ -17,28 +17,11 @@ spec:
       source: |-
         module.exports = {
             main: function (event, context) {
-                startLogger(event.extensions.request.headers)
-                return "Log thread triggered"
+                var headers=event.extensions.request.headers
+                var crypto = require("crypto");
+                console.log(JSON.stringify({"@timestamp":"2023-06-14T13:19:25.830Z","log.level":"debug","message":"< Received getCurrentWeather response from http://api.weatherapi.com/v1","ecs":{"version":"1.6.0"}}))
+                return "Log triggered with request-id " + event.extensions.request.headers["x-request-id"]
             }
-        }
-
-        async function startLogger(headers) {
-            var index = 0
-            console.log("Starting log thread for request " + headers["x-request-id"])
-            while (true) {
-                console.log(JSON.stringify({
-                    "number": index,
-                    "request": headers["x-request-id"]
-                }))
-                index++
-                await sleep(10);
-            }
-        }
-
-        async function sleep(ms) {
-            return new Promise((resolve) => {
-                setTimeout(resolve, ms);
-            });
         }
       dependencies: |-
         {  
